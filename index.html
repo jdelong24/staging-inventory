@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angie's Staging Inventory</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a1a;min-height:100vh}
+.shell{max-width:860px;margin:0 auto;padding:1.5rem 1rem}
+.app-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.app-title{font-size:17px;font-weight:500;color:#1a1a1a;display:flex;align-items:center;gap:8px}
+.app-title i{color:#534AB7;font-size:20px}
+.app-sub{font-size:12px;color:#888;margin-top:1px}
+.nav{display:flex;gap:2px;margin-bottom:1.5rem;border-bottom:1px solid #e8e8e6;padding-bottom:0}
+.nav-btn{padding:8px 14px;font-size:13px;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:#888;margin-bottom:-1px;display:flex;align-items:center;gap:6px;transition:color .15s}
+.nav-btn.active{color:#1a1a1a;border-bottom-color:#534AB7}
+.nav-btn:hover{color:#1a1a1a}
+.view{display:none}.view.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem}
+@media(max-width:600px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat{background:#fff;border-radius:10px;padding:14px;border:1px solid #e8e8e6}
+.stat-label{font-size:12px;color:#888;margin-bottom:4px}
+.stat-val{font-size:22px;font-weight:500;color:#1a1a1a;line-height:1}
+.stat-sub{font-size:11px;color:#aaa;margin-top:3px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.two-col{grid-template-columns:1fr}}
+.section-card{background:#fff;border-radius:10px;border:1px solid #e8e8e6;padding:14px 16px}
+.section-title{font-size:13px;font-weight:500;color:#1a1a1a;margin-bottom:10px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12px}
+.bar-label{width:110px;color:#888;text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:7px;background:#f0efe8;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;background:#534AB7;transition:width .4s}
+.bar-count{width:24px;color:#aaa;text-align:right}
+.topbar{display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:160px;max-width:280px}
+.search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#aaa;font-size:15px;pointer-events:none}
+.search-wrap input{width:100%;padding-left:32px}
+input[type=text],input[type=number],select,textarea{height:36px;padding:0 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;background:#fff;color:#1a1a1a;outline:none;font-family:inherit;width:100%}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:#534AB7;box-shadow:0 0 0 3px rgba(83,74,183,0.1)}
+textarea{height:auto;min-height:64px;padding:8px 10px;resize:vertical}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
+.btn{height:36px;padding:0 14px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-weight:500;background:#fff;color:#1a1a1a;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:background .15s,border-color .15s}
+.btn:hover{background:#f5f5f3;border-color:#bbb}
+.btn.primary{background:#534AB7;border-color:#534AB7;color:#fff}
+.btn.primary:hover{background:#3C3489;border-color:#3C3489}
+.btn.danger{color:#a32d2d;border-color:#f09595}
+.btn.danger:hover{background:#fcebeb}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px}
+.card{background:#fff;border:1px solid #e8e8e6;border-radius:12px;overflow:hidden;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,0.07)}
+.card-thumb{width:100%;height:100px;background:#f5f5f3;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.card-thumb img{width:100%;height:100%;object-fit:cover}
+.card-thumb-icon{font-size:28px;color:#ccc}
+.card-body{padding:9px 11px}
+.card-name{font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.card-meta{font-size:11px;color:#888;margin-bottom:6px}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:11px;font-weight:500;padding:2px 7px;border-radius:20px;display:inline-block}
+.b-in{background:#E1F5EE;color:#085041}
+.b-out{background:#FAEEDA;color:#633806}
+.b-repair{background:#FCEBEB;color:#791F1F}
+.b-cat{background:#f0efe8;color:#666;border:1px solid #e8e8e6}
+.loc-tag{font-size:11px;color:#aaa;display:flex;align-items:center;gap:2px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:100}
+.panel{background:#fff;border-radius:14px;border:1px solid #e8e8e6;padding:1.25rem;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
+.panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.panel-title{font-size:15px;font-weight:500;color:#1a1a1a}
+.close-btn{width:28px;height:28px;border:1px solid #e8e8e6;border-radius:8px;background:#f5f5f3;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#888;font-size:15px;flex-shrink:0}
+.close-btn:hover{background:#eee}
+.detail-thumb{width:100%;height:150px;background:#f5f5f3;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;overflow:hidden}
+.detail-thumb img{width:100%;height:100%;object-fit:cover}
+.detail-thumb-icon{font-size:44px;color:#ccc}
+.field-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0efe8;font-size:13px}
+.field-row:last-child{border-bottom:none}
+.field-label{color:#888}
+.field-val{font-weight:500;color:#1a1a1a;text-align:right;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.action-row{display:flex;gap:8px;margin-top:1rem}
+.log-section{margin-top:1rem;padding-top:1rem;border-top:1px solid #f0efe8}
+.log-head{font-size:11px;font-weight:500;color:#aaa;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.log-entry{font-size:12px;color:#888;padding:5px 0;border-bottom:1px solid #f0efe8;display:flex;justify-content:space-between;gap:8px}
+.log-entry:last-child{border-bottom:none}
+.log-date{color:#bbb;white-space:nowrap}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-full{grid-column:1/-1}
+.form-label{font-size:12px;color:#666;margin-bottom:4px;display:block}
+.form-label.req::after{content:" *";color:#a32d2d}
+.upload-zone{border:1.5px dashed #ddd;border-radius:8px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;font-size:13px;color:#888}
+.upload-zone:hover{border-color:#534AB7;color:#534AB7}
+.upload-preview{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-top:8px;display:none}
+.empty{text-align:center;padding:2.5rem 1rem;color:#aaa;font-size:13px}
+.empty i{font-size:28px;margin-bottom:8px;display:block;color:#ccc}
+.job-card{background:#fff;border:1px solid #e8e8e6;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.job-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.job-address{font-size:14px;font-weight:500;color:#1a1a1a}
+.job-date{font-size:12px;color:#aaa}
+.job-item-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f0efe8}
+.job-item-row:last-child{border-bottom:none}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#534AB7;color:#fff;font-size:13px;padding:9px 20px;border-radius:24px;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none;z-index:200}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="app-header">
+    <div>
+      <div class="app-title"><i class="ti ti-building-warehouse"></i> Staging Inventory</div>
+      <div class="app-sub">Add items, check out to jobs, track everything</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showView('dashboard',this)"><i class="ti ti-layout-dashboard"></i> Dashboard</button>
+    <button class="nav-btn" onclick="showView('inventory',this)"><i class="ti ti-box"></i> Inventory</button>
+    <button class="nav-btn" onclick="showView('jobs',this)"><i class="ti ti-building"></i> Jobs</button>
+  </div>
+
+  <div id="view-dashboard" class="view active">
+    <div class="stats-grid" id="dash-stats"></div>
+    <div class="two-col">
+      <div class="section-card">
+        <div class="section-title">Items by category</div>
+        <div id="cat-bars"></div>
+      </div>
+      <div class="section-card">
+        <div class="section-title">Currently checked out</div>
+        <div id="dash-out-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-inventory" class="view">
+    <div class="topbar">
+      <div class="search-wrap">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="Search items..." id="inv-search" oninput="renderInventory()">
+      </div>
+      <select id="inv-cat" onchange="renderInventory()" style="max-width:160px">
+        <option value="">All categories</option>
+      </select>
+      <select id="inv-status" onchange="renderInventory()" style="max-width:150px">
+        <option value="">All statuses</option>
+        <option>In warehouse</option>
+        <option>Checked out</option>
+        <option>Needs repair</option>
+      </select>
+      <button class="btn primary" onclick="openAddItem()"><i class="ti ti-plus"></i> Add item</button>
+    </div>
+    <div class="item-grid" id="item-grid"></div>
+  </div>
+
+  <div id="view-jobs" class="view">
+    <div class="topbar">
+      <div class="section-title" style="margin:0;flex:1;font-size:14px;font-weight:500">Active jobs <span id="job-count" style="font-weight:400;color:#888;font-size:13px"></span></div>
+    </div>
+    <div id="jobs-list"></div>
+  </div>
+</div>
+
+<!-- Detail modal -->
+<div id="detail-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closeDetail()">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title" id="det-name"></div>
+      <button class="close-btn" onclick="closeDetail()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="detail-thumb" id="det-thumb"></div>
+    <div id="det-fields"></div>
+    <div class="action-row">
+      <button class="btn primary" id="det-action" style="flex:1"></button>
+      <button class="btn" onclick="openEditItem(currentDetailId)"><i class="ti ti-edit"></i> Edit</button>
+      <button class="btn danger" onclick="deleteItem(currentDetailId)"><i class="ti ti-trash"></i></button>
+    </div>
+    <div class="log-section">
+      <div class="log-head">History</div>
+      <div id="det-log"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/edit modal -->
+<div id="add-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closeAddItem()">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title" id="add-panel-title">Add item</div>
+      <button class="close-btn" onclick="closeAddItem()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="form-grid">
+      <div class="form-full">
+        <label class="form-label req">Item name</label>
+        <input type="text" id="f-name" placeholder="e.g. Linen sectional sofa">
+      </div>
+      <div>
+        <label class="form-label req">Category</label>
+        <select id="f-cat">
+          <option value="">Select…</option>
+          <option>Sofa & seating</option><option>Tables</option><option>Lighting</option>
+          <option>Art</option><option>Rugs</option><option>Bedroom</option>
+          <option>Accessories</option><option>Outdoor</option><option>Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label req">Condition</label>
+        <select id="f-cond">
+          <option value="A">A — excellent</option>
+          <option value="B">B — good</option>
+          <option value="C">C — needs repair</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label req">Location / zone</label>
+        <input type="text" id="f-loc" placeholder="e.g. Row A, Bay 2">
+      </div>
+      <div>
+        <label class="form-label">Quantity</label>
+        <input type="number" id="f-qty" value="1" min="1">
+      </div>
+      <div class="form-full">
+        <label class="form-label">Notes</label>
+        <textarea id="f-notes" placeholder="Color, dimensions, purchase source…"></textarea>
+      </div>
+      <div class="form-full">
+        <label class="form-label">Photo</label>
+        <div class="upload-zone" onclick="document.getElementById('f-photo').click()">
+          <i class="ti ti-photo" style="font-size:20px;margin-bottom:4px;display:block"></i>
+          Click to upload a photo
+          <input type="file" id="f-photo" accept="image/*" style="display:none" onchange="previewPhoto(this)">
+        </div>
+        <img id="photo-preview" class="upload-preview">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="btn primary" onclick="saveItem()" style="flex:1">Save item</button>
+      <button class="btn" onclick="closeAddItem()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checkout modal -->
+<div id="checkout-modal" class="modal-bg" style="display:none" onclick="if(event.target===this)closeCheckout()">
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">Check out item</div>
+      <button class="close-btn" onclick="closeCheckout()"><i class="ti ti-x"></i></button>
+    </div>
+    <div style="font-size:13px;color:#888;margin-bottom:1rem" id="co-item-name"></div>
+    <div style="margin-bottom:10px">
+      <label class="form-label req">Property address</label>
+      <input type="text" id="co-address" placeholder="e.g. 14 Elk Run Drive">
+    </div>
+    <div style="margin-bottom:1rem">
+      <label class="form-label">Notes (room, placement)</label>
+      <input type="text" id="co-notes" placeholder="e.g. Living room">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn primary" onclick="confirmCheckout()" style="flex:1">Confirm checkout</button>
+      <button class="btn" onclick="closeCheckout()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const STORE='angie-staging-v1';
+let items=[],currentDetailId=null,editingId=null,checkoutId=null,pendingPhoto=null;
+const CATS=['Sofa & seating','Tables','Lighting','Art','Rugs','Bedroom','Accessories','Outdoor','Other'];
+const ICONS={'Sofa & seating':'ti-armchair','Tables':'ti-table','Lighting':'ti-bulb','Art':'ti-photo','Rugs':'ti-texture','Bedroom':'ti-bed','Accessories':'ti-plant','Outdoor':'ti-tree','Other':'ti-box'};
+
+function load(){
+  try{const d=localStorage.getItem(STORE);if(d)items=JSON.parse(d);}catch(e){}
+  if(!items.length)items=seed();
+  buildCatFilter();renderAll();
+}
+
+function save(){try{localStorage.setItem(STORE,JSON.stringify(items));}catch(e){}}
+
+function uid(){return Math.random().toString(36).slice(2,9)}
+function today(){const d=new Date();return['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getDate();}
+
+function seed(){
+  return[
+    {id:uid(),name:"Linen sectional sofa",cat:"Sofa & seating",cond:"A",loc:"Row A, Bay 2",qty:1,notes:"Warm oatmeal, 110\"",status:"Checked out",job:"14 Elk Run Drive",jobNotes:"Living room",checkedOutDate:"May 28",photo:null,log:[{d:"May 28",t:"Checked out → 14 Elk Run Drive"},{d:"Apr 10",t:"Returned from 33 Aspen Way"}]},
+    {id:uid(),name:"Walnut dining table",cat:"Tables",cond:"A",loc:"Row B, Bay 1",qty:1,notes:"72\", seats 8",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Feb 14",t:"Added to inventory"}]},
+    {id:uid(),name:"Rattan accent chair",cat:"Sofa & seating",cond:"B",loc:"Row A, Bay 3",qty:2,notes:"Natural finish",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Jan 15",t:"Added to inventory"}]},
+    {id:uid(),name:"Brass floor lamp",cat:"Lighting",cond:"A",loc:"Row C, Bay 2",qty:1,notes:"Adjustable arm",status:"Checked out",job:"92 Park Ave #3",jobNotes:"Reading nook",checkedOutDate:"Jun 1",photo:null,log:[{d:"Jun 1",t:"Checked out → 92 Park Ave #3"}]},
+    {id:uid(),name:"Abstract canvas 36\"",cat:"Art",cond:"A",loc:"Art wall, Slot 4",qty:1,notes:"Blue/grey tones",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Jan 20",t:"Added to inventory"}]},
+    {id:uid(),name:"Marble coffee table",cat:"Tables",cond:"C",loc:"Repair zone",qty:1,notes:"Chip on corner",status:"Needs repair",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Jun 1",t:"Flagged for repair"}]},
+    {id:uid(),name:"Jute area rug 8x10",cat:"Rugs",cond:"A",loc:"Row D, Shelf 1",qty:3,notes:"Natural jute",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"May 1",t:"Added to inventory"}]},
+    {id:uid(),name:"Velvet throw pillows",cat:"Accessories",cond:"A",loc:"Row E, Bay 1",qty:6,notes:"Forest green",status:"Checked out",job:"14 Elk Run Drive",jobNotes:"Master bedroom",checkedOutDate:"May 28",photo:null,log:[{d:"May 28",t:"Checked out → 14 Elk Run Drive"}]},
+    {id:uid(),name:"White linen duvet set",cat:"Bedroom",cond:"A",loc:"Row D, Shelf 3",qty:2,notes:"King size",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Mar 1",t:"Added to inventory"}]},
+    {id:uid(),name:"Ceramic table lamp",cat:"Lighting",cond:"B",loc:"Row C, Bay 1",qty:2,notes:"Cream glaze",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Feb 20",t:"Added to inventory"}]},
+    {id:uid(),name:"Vintage round mirror",cat:"Accessories",cond:"A",loc:"Row E, Bay 3",qty:1,notes:"48\", gold frame",status:"Checked out",job:"7 Snowcrest Lane",jobNotes:"Entry hall",checkedOutDate:"Jun 3",photo:null,log:[{d:"Jun 3",t:"Checked out → 7 Snowcrest Lane"}]},
+    {id:uid(),name:"Faux olive tree",cat:"Accessories",cond:"A",loc:"Row F, Bay 2",qty:2,notes:"6ft, very realistic",status:"In warehouse",job:null,jobNotes:null,checkedOutDate:null,photo:null,log:[{d:"Apr 15",t:"Added to inventory"}]},
+  ];
+}
+
+function statusBadge(s){
+  if(s==='In warehouse')return'<span class="badge b-in">In warehouse</span>';
+  if(s==='Checked out')return'<span class="badge b-out">Checked out</span>';
+  return'<span class="badge b-repair">Needs repair</span>';
+}
+
+function showView(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function renderAll(){renderDashboard();renderInventory();renderJobs();}
+
+function renderDashboard(){
+  const total=items.length,out=items.filter(i=>i.status==='Checked out').length,
+    repair=items.filter(i=>i.status==='Needs repair').length,
+    jobs=[...new Set(items.filter(i=>i.job).map(i=>i.job))].length;
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat"><div class="stat-label">Total items</div><div class="stat-val">${total}</div><div class="stat-sub">in inventory</div></div>
+    <div class="stat"><div class="stat-label">Checked out</div><div class="stat-val">${out}</div><div class="stat-sub">at ${jobs} propert${jobs!==1?'ies':'y'}</div></div>
+    <div class="stat"><div class="stat-label">In warehouse</div><div class="stat-val">${items.filter(i=>i.status==='In warehouse').length}</div><div class="stat-sub">available</div></div>
+    <div class="stat"><div class="stat-label">Needs repair</div><div class="stat-val">${repair}</div><div class="stat-sub">flagged</div></div>`;
+  const cc={};CATS.forEach(c=>{const n=items.filter(i=>i.cat===c).length;if(n>0)cc[c]=n;});
+  const mx=Math.max(...Object.values(cc),1);
+  document.getElementById('cat-bars').innerHTML=Object.entries(cc).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`
+    <div class="bar-row"><div class="bar-label">${c}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(n/mx*100)}%"></div></div><div class="bar-count">${n}</div></div>`).join('');
+  const oi=items.filter(i=>i.status==='Checked out');
+  document.getElementById('dash-out-list').innerHTML=oi.length?oi.map(i=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid #f0efe8">
+      <span>${i.name}</span><span style="color:#aaa;font-size:11px;text-align:right;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.job}</span>
+    </div>`).join(''):'<div class="empty"><i class="ti ti-circle-check"></i>All items in warehouse</div>';
+}
+
+function buildCatFilter(){
+  const s=document.getElementById('inv-cat');
+  const used=[...new Set(items.map(i=>i.cat))].sort();
+  s.innerHTML='<option value="">All categories</option>'+used.map(c=>`<option>${c}</option>`).join('');
+}
+
+function renderInventory(){
+  const q=(document.getElementById('inv-search').value||'').toLowerCase();
+  const cat=document.getElementById('inv-cat').value;
+  const st=document.getElementById('inv-status').value;
+  const f=items.filter(i=>
+    (!q||i.name.toLowerCase().includes(q)||i.cat.toLowerCase().includes(q)||i.loc.toLowerCase().includes(q))&&
+    (!cat||i.cat===cat)&&(!st||i.status===st));
+  const g=document.getElementById('item-grid');
+  if(!f.length){g.innerHTML='<div class="empty" style="grid-column:1/-1"><i class="ti ti-search"></i>No items match</div>';return;}
+  g.innerHTML=f.map(i=>`
+    <div class="card" onclick="openDetail('${i.id}')">
+      <div class="card-thumb">${i.photo?`<img src="${i.photo}" alt="${i.name}">`:`<i class="ti ${ICONS[i.cat]||'ti-box'} card-thumb-icon"></i>`}</div>
+      <div class="card-body">
+        <div class="card-name">${i.name}</div>
+        <div class="card-meta"><span class="badge b-cat">${i.cat}</span></div>
+        <div class="card-footer">${statusBadge(i.status)}<span class="loc-tag"><i class="ti ti-map-pin" style="font-size:11px"></i>${i.loc.split(',')[0]}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+function renderJobs(){
+  const jobs={};
+  items.filter(i=>i.status==='Checked out'&&i.job).forEach(i=>{
+    if(!jobs[i.job])jobs[i.job]={address:i.job,date:i.checkedOutDate,items:[]};
+    jobs[i.job].items.push(i);
+  });
+  const entries=Object.values(jobs);
+  document.getElementById('job-count').textContent=entries.length?`— ${entries.length} active`:'';
+  const el=document.getElementById('jobs-list');
+  if(!entries.length){el.innerHTML='<div class="empty"><i class="ti ti-building"></i>No active jobs</div>';return;}
+  el.innerHTML=entries.map(j=>`
+    <div class="job-card">
+      <div class="job-header">
+        <div class="job-address"><i class="ti ti-map-pin" style="font-size:14px;vertical-align:-2px;margin-right:4px"></i>${j.address}</div>
+        <div class="job-date">Since ${j.date||'—'}</div>
+      </div>
+      <div>${j.items.map(i=>`
+        <div class="job-item-row">
+          <span>${i.name}${i.jobNotes?` <span style="color:#aaa;font-weight:400">· ${i.jobNotes}</span>`:''}</span>
+          <button class="btn sm" onclick="event.stopPropagation();quickCheckin('${i.id}')"><i class="ti ti-arrow-back-up" style="font-size:12px"></i> Check in</button>
+        </div>`).join('')}</div>
+    </div>`).join('');
+}
+
+function openDetail(id){
+  currentDetailId=id;
+  const i=items.find(x=>x.id===id);if(!i)return;
+  document.getElementById('det-name').textContent=i.name;
+  const th=document.getElementById('det-thumb');
+  th.innerHTML=i.photo?`<img src="${i.photo}" alt="${i.name}">`:`<i class="ti ${ICONS[i.cat]||'ti-box'} detail-thumb-icon"></i>`;
+  const fields=[['Category',i.cat],['Status',statusBadge(i.status)],['Location',i.loc],
+    ['Condition',{A:'A — excellent',B:'B — good',C:'C — needs repair'}[i.cond]],
+    ['Quantity',i.qty],i.job?['Current job',i.job]:null,
+    i.jobNotes?['Notes',i.jobNotes]:null,i.notes?['Item notes',i.notes]:null].filter(Boolean);
+  document.getElementById('det-fields').innerHTML=fields.map(([l,v])=>`<div class="field-row"><span class="field-label">${l}</span><span class="field-val">${v}</span></div>`).join('');
+  const ab=document.getElementById('det-action');
+  if(i.status==='Checked out'){ab.innerHTML='<i class="ti ti-arrow-back-up"></i> Check in';ab.onclick=()=>checkin(id);}
+  else{ab.innerHTML='<i class="ti ti-arrow-up-right"></i> Check out';ab.onclick=()=>openCheckout(id);}
+  document.getElementById('det-log').innerHTML=(i.log&&i.log.length)?i.log.map(e=>`<div class="log-entry"><span>${e.t}</span><span class="log-date">${e.d}</span></div>`).join(''):'<div style="font-size:12px;color:#bbb">No history yet</div>';
+  document.getElementById('detail-modal').style.display='flex';
+}
+
+function closeDetail(){document.getElementById('detail-modal').style.display='none';currentDetailId=null;}
+
+function checkin(id){
+  const i=items.find(x=>x.id===id);if(!i)return;
+  const from=i.job;
+  i.status='In warehouse';i.job=null;i.jobNotes=null;i.checkedOutDate=null;
+  i.log.unshift({d:today(),t:`Returned from ${from}`});
+  save();renderAll();closeDetail();toast('Checked in ✓');
+}
+function quickCheckin(id){checkin(id);}
+
+function openCheckout(id){
+  checkoutId=id;
+  const i=items.find(x=>x.id===id);
+  document.getElementById('co-item-name').textContent=i?i.name:'';
+  document.getElementById('co-address').value='';
+  document.getElementById('co-notes').value='';
+  document.getElementById('detail-modal').style.display='none';
+  document.getElementById('checkout-modal').style.display='flex';
+}
+function closeCheckout(){document.getElementById('checkout-modal').style.display='none';checkoutId=null;}
+
+function confirmCheckout(){
+  const addr=document.getElementById('co-address').value.trim();
+  if(!addr){alert('Please enter a property address.');return;}
+  const i=items.find(x=>x.id===checkoutId);if(!i)return;
+  i.status='Checked out';i.job=addr;
+  i.jobNotes=document.getElementById('co-notes').value.trim()||null;
+  i.checkedOutDate=today();
+  i.log.unshift({d:today(),t:`Checked out → ${addr}`});
+  save();renderAll();closeCheckout();toast('Checked out ✓');
+}
+
+function openAddItem(){editingId=null;pendingPhoto=null;document.getElementById('add-panel-title').textContent='Add item';clearForm();document.getElementById('add-modal').style.display='flex';}
+function closeAddItem(){document.getElementById('add-modal').style.display='none';editingId=null;pendingPhoto=null;}
+
+function openEditItem(id){
+  const i=items.find(x=>x.id===id);if(!i)return;
+  editingId=id;pendingPhoto=null;
+  document.getElementById('add-panel-title').textContent='Edit item';
+  document.getElementById('f-name').value=i.name;
+  document.getElementById('f-cat').value=i.cat;
+  document.getElementById('f-cond').value=i.cond;
+  document.getElementById('f-loc').value=i.loc;
+  document.getElementById('f-qty').value=i.qty;
+  document.getElementById('f-notes').value=i.notes||'';
+  const prev=document.getElementById('photo-preview');
+  if(i.photo){prev.src=i.photo;prev.style.display='block';}else{prev.style.display='none';}
+  closeDetail();
+  document.getElementById('add-modal').style.display='flex';
+}
+
+function clearForm(){
+  ['f-name','f-loc','f-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-cat').value='';
+  document.getElementById('f-cond').value='A';
+  document.getElementById('f-qty').value=1;
+  document.getElementById('photo-preview').style.display='none';
+}
+
+function previewPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    pendingPhoto=e.target.result;
+    const prev=document.getElementById('photo-preview');
+    prev.src=pendingPhoto;prev.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveItem(){
+  const name=document.getElementById('f-name').value.trim();
+  const cat=document.getElementById('f-cat').value;
+  const loc=document.getElementById('f-loc').value.trim();
+  if(!name||!cat||!loc){alert('Please fill in name, category, and location.');return;}
+  if(editingId){
+    const i=items.find(x=>x.id===editingId);if(!i)return;
+    i.name=name;i.cat=cat;i.cond=document.getElementById('f-cond').value;
+    i.loc=loc;i.qty=parseInt(document.getElementById('f-qty').value)||1;
+    i.notes=document.getElementById('f-notes').value.trim();
+    if(pendingPhoto)i.photo=pendingPhoto;
+    i.log.unshift({d:today(),t:'Item updated'});
+    toast('Saved ✓');
+  }else{
+    items.unshift({id:uid(),name,cat,cond:document.getElementById('f-cond').value,
+      loc,qty:parseInt(document.getElementById('f-qty').value)||1,
+      notes:document.getElementById('f-notes').value.trim(),
+      status:'In warehouse',job:null,jobNotes:null,checkedOutDate:null,
+      photo:pendingPhoto||null,log:[{d:today(),t:'Added to inventory'}]});
+    toast('Item added ✓');
+  }
+  save();buildCatFilter();renderAll();closeAddItem();
+}
+
+function deleteItem(id){
+  if(!confirm('Delete this item? This cannot be undone.'))return;
+  items=items.filter(x=>x.id!==id);
+  save();buildCatFilter();renderAll();closeDetail();toast('Deleted');
+}
+
+function toast(msg){
+  const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2200);
+}
+
+load();
+</script>
+</body>
+</html>
